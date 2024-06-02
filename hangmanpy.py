@@ -56,15 +56,16 @@ class HangmanGame:
 
     def selectLevel(self,level):
         if level == "1": # easy
-            life = 8
+            self.life = 8
             displaySelectLevel()
             return words[0]
         elif level == "2": # medium
-            life = 6
+            self.life = 6
+            displaySelectLevel()
             return words[1]
         elif level == "3": # hard
-            life = 6
-            return words[2]
+            self.life = 6
+            return words[random.randint(0, len(words) - 1)]
 
     def playGame(self):
         self.displayBoard()
@@ -100,6 +101,7 @@ class HangmanGame:
             pass
         elif input_key == '5':
             self.displayAbout()
+        self.playGame()
 
     def play(self):
         while True:
@@ -213,14 +215,13 @@ words = [animal, Shapes, Place]
 def selectLevel(level):
     if level == "1": # easy
         life = 8
-        displaySelectLevel()
-        return words[0]
+        return words[displaySelectLevel()]
     elif level == "2": # medium
         life = 6
-        return words[1]
+        return words[displaySelectLevel()]
     elif level == "3": # hard
         life = 6
-        return words[2]
+        return words[random.randint(0, len(words) - 1)]
     # else:
     #     return words[random.randint(0, len(words) - 1)]
 
@@ -246,13 +247,7 @@ def displaySelectLevel():
     print('Enter the key (1, 2, 3, 4, or 5) based on above Menu:')
     input_key = input()
     if input_key in ['1', '2', '3']:
-        if input_key == '1':
-            return words[0]
-        elif input_key == '2':
-            return words[1]
-        elif input_key == '3':
-            return words[2]
-        playGame()
+        return input_key
     else:
         print('Invalid input. Please enter a valid level key.')
         displaySelectLevel()
