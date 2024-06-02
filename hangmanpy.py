@@ -1,11 +1,47 @@
 import random
 from tabulate import tabulate
-from tabulate import tabulate
+import sqlite3
 
 print('H A N G M A N')
 
-class HangmanGame:
+class backend:
     def __init__(self):
+        self.conn = sqlite3.connect('hangman_records.db')
+        self.c = self.conn.cursor()
+        self.c.execute('''CREATE TABLE IF NOT EXISTS records (level text, player_name text, remaining_lives integer)''')
+    
+# conn = sqlite3.connect('hangman_records.db')
+# c = conn.cursor()
+# print(c)
+
+
+    def update_records(self, player_name, level, remaining_lives):
+        # Check if the player already has a record for the level
+        self.c.execute("SELECT remaining_lives FROM records WHERE level=? AND player_name=? ", (player_name, level))
+        result = self.c.fetchone()
+
+        if result is None:
+            # Insert a new record for the player and level
+            self.c.execute("INSERT INTO records VALUES (?, ?, ?)", (level, player_name, remaining_lives))
+        else:
+            # Update the existing record if the new remaining lives is higher
+            if remaining_lives > result[0]:
+                self.c.execute("UPDATE records SET remaining_lives=? WHERE player_name=? AND level=?", (remaining_lives, player_name, level))
+
+        # Commit the changes to the database
+        self.conn.commit()
+
+    def get_records(self):
+        self.c.execute("SELECT * FROM records")
+        records = self.c.fetchall()
+        print(tabulate(records, headers=["Level", "Player Name", "Remaining Lives"], tablefmt="fancy_grid"))
+        return records
+
+class HangmanGame:
+    def __init__(self, backend_db):
+        self.backend_db = backend_db
+        self.level = 0
+        self.player_name = ''
         self.missedLetters = ''
         self.correctLetters = ''
         self.secretWord = ''
@@ -49,6 +85,8 @@ class HangmanGame:
                 return guess
 
     def selectLevel(self,level):
+        self.level = level
+        print("Level: ", level)
         if level == "1": # easy
             self.life = 8
             displaySelectLevel()
@@ -87,29 +125,57 @@ class HangmanGame:
         return input().lower().startswith('y')
 
     def menu(self):
-        displayMenu()
+        displayMenu(self)
         input_key = getMenuInput()
         if input_key in ['1', '2', '3']:
             self.secretWord = self.getRandomWord(self.selectLevel(input_key))
+            self.playGame()
         elif input_key == '4':
-            pass
+            displayHallOfFame(self.backend_db)
+            self.menu()
+            
         elif input_key == '5':
             self.displayAbout()
-        self.playGame()
+            self.menu()
 
-    def play(self):
-        while True:
-            self.playGame()
-            if self.gameIsDone:
-                if self.playAgain():
-                    self.missedLetters = ''
-                    self.correctLetters = ''
-                    self.gameIsDone = False
-                    self.life = 8
-                    self.secretWord = self.getRandomWord(words)
-                    self.menu()
-                else:
-                    break
+    # def play(self):
+    #     while True:
+    #         self.playGame()
+    #         if self.gameIsDone:
+    #             if self.playAgain():
+    #                 self.missedLetters = ''
+    #                 self.correctLetters = ''
+    #                 self.gameIsDone = False
+    #                 self.life = 8
+    #                 self.secretWord = self.getRandomWord(words)
+    #                 self.menu()
+    #             else:
+    #                 break
+
+    def displayAbout(self):
+        header = [[ansi_decorator('32')(lambda: """ABOUT THE GAME""")()]]
+        data = [
+            ["""Easy""", 
+            """The user will be given the chance to select the list from which the random word will \n
+            be selected (Animal, Shape, Place). This will make it easier to guess the secret word. \n
+            Also, the number of trials will be increased from 6 to 8."""],
+            ["""Moderate""", 
+            """Similar to Easy, the user will be given the chance to select the set \n
+            from which the random word will be selected (Animal, Shape, Place), but the number of \n
+            trials will be reduced to 6. The last two graphics will not be used or displayed."""],
+            ["""Hard""", 
+            """The code will randomly select a set of words. From this set, the code will \n
+            randomly select a word. The user will have no clue about the secret word. Also, the number \n
+            of trials will remain at 6."""]
+        ]
+        header_table = tabulate(header, tablefmt="double_outline", stralign="center", numalign="center")
+        table = tabulate(data, headers=['Level', 'Description'], tablefmt='fancy_grid')
+        print(header_table)
+        print(table)
+        
+        print("Press any key to return to Main Menu...")
+        input()
+
 
 HANGMAN_PICS = ['''
   +---+
@@ -208,10 +274,16 @@ def displaySelectLevel():
         print('Invalid input. Please enter a valid level key.')
         displaySelectLevel()
     
-
+def displayHallOfFame(backend_db):
+    backend_db.get_records()
+    print("Press any key to return to Main Menu...")
+    input()
     
 
-def displayMenu():
+def displayMenu(hangman_game):
+    print("Please Enter your name:")
+    player_name = input()
+    hangman_game.player_name = player_name
     header = [[ansi_decorator('32')(lambda: "    PLAY THE GAME     ")()]]
 
     data = [
@@ -244,13 +316,17 @@ def getMenuInput():
 
 
 
-hangman_game = HangmanGame()
+backend_db = backend()
+hangman_game = HangmanGame(backend_db)
 hangman_game.menu()
+
+
 
 while True:
     hangman_game.playGame()
     # Ask the player if they want to play again (but only if the game is done).
     if hangman_game.gameIsDone:
+        backend_db.update_records(hangman_game.player_name, int(hangman_game.level) , hangman_game.life)
         if hangman_game.playAgain():
             hangman_game.missedLetters = ''
             hangman_game.correctLetters = ''
@@ -259,4 +335,5 @@ while True:
             hangman_game.secretWord = hangman_game.getRandomWord(words)
             hangman_game.menu()
         else:
+            backend_db.conn.close()
             break
