@@ -1,4 +1,6 @@
 import random
+from tabulate import tabulate
+
 HANGMAN_PICS = ['''
   +---+
       |
@@ -48,7 +50,12 @@ HANGMAN_PICS = ['''
                 
                 
                 
-words = 'ant baboon badger bat bear beaver camel cat clam cobra cougar coyote crow deer dog donkey duck eagle ferret fox frog goat goose hawk lion lizard llama mole monkey moose mouse mule newt otter owl panda parrot pigeon python rabbit ram rat raven rhino salmon seal shark sheep skunk sloth snake spider stork swan tiger toad trout turkey turtle weasel whale wolf wombat zebra'.split()
+animal = 'ant baboon badger bat bear beaver camel cat clam cobra panda zebra sheep'.split()
+Shapes = 'square triangle rectangle circle ellipse rhombus trapezoid Place'.split()
+Place = 'Cairo London Paris Baghdad Istanbul Riyadh'.split()
+
+words = [animal, Shapes, Place]
+
 
 def getRandomWord(wordList):
     # This function returns a random string from the passed list of strings.
@@ -89,6 +96,50 @@ def getGuess(alreadyGuessed):
         else:
             return guess
 
+def selectLevel(level):
+    if level == 'easy':
+        return words[0]
+    elif level == 'medium':
+        return words[1]
+    elif level == 'hard':
+        return words[2]
+    else:
+        return words[random.randint(0, len(words) - 1)]
+    
+def displayMenu():
+    # Define the header
+    header = [["\033[32m    PLAY THE GAME     \033[0m"]]
+
+    # Define the main data
+    data = [
+        ["\033[33m Easy level \033[0m", "\033[44m 1 \033[0m"],
+        ["\033[33m Moderate level \033[0m", "\033[44m 2 \033[0m"],
+        ["\033[33m Hard level \033[0m", "\033[44m 3 \033[0m"],
+    ]
+
+    # Define the footer data
+    footer = [
+        ["\033[33m Hall of fame \033[0m", "\033[44m 4 \033[0m"],
+        ["\033[33m About the game \033[0m", "\033[44m 5 \033[0m"],
+    ]
+
+    # Create the header table with a single column
+    header_table = tabulate(header, tablefmt="double_outline", stralign="center", numalign="center")
+
+    # Create the main data table with two columns
+    data_table = tabulate(data, headers=["LEVELS", "KEY"], tablefmt="mixed_outline", stralign="center", numalign="center")
+
+    # Create the footer table with two columns
+    footer_table = tabulate(footer, headers=["INFO", "KEY"], tablefmt="fancy_grid", stralign="center", numalign="center")
+
+    # Print the tables
+    print(header_table)
+    print(data_table)
+    print(footer_table)
+
+
+
+
 def playAgain():
     # This function returns True if the player wants to play again; otherwise, it returns False.
     print('Do you want to play again? (yes or no)')
@@ -102,6 +153,7 @@ secretWord = getRandomWord(words)
 gameIsDone = False
 
 while True:
+    displayMenu()
     displayBoard(missedLetters, correctLetters, secretWord)
 
     # Let the player enter a letter.
