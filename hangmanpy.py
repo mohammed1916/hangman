@@ -86,15 +86,12 @@ class HangmanGame:
 
     def selectLevel(self,level):
         self.level = level
-        print("Level: ", level)
         if level == "1": # easy
-            self.life = 8
-            displaySelectLevel()
-            return words[0]
+            life = 8
+            return words[displaySelectLevel()]
         elif level == "2": # medium
-            self.life = 6
-            displaySelectLevel()
-            return words[1]
+            life = 6
+            return words[displaySelectLevel()]
         elif level == "3": # hard
             self.life = 6
             return words[random.randint(0, len(words) - 1)]
@@ -131,8 +128,7 @@ class HangmanGame:
             self.secretWord = self.getRandomWord(self.selectLevel(input_key))
             self.playGame()
         elif input_key == '4':
-            displayHallOfFame(self.backend_db)
-            self.menu()
+            displayHallOfFame(self.backend_db, self)
             
         elif input_key == '5':
             self.displayAbout()
@@ -234,18 +230,6 @@ words = [animal, Shapes, Place]
 
 
 
-def selectLevel(level):
-    if level == "1": # easy
-        life = 8
-        return words[displaySelectLevel()]
-    elif level == "2": # medium
-        life = 6
-        return words[displaySelectLevel()]
-    elif level == "3": # hard
-        life = 6
-        return words[random.randint(0, len(words) - 1)]
-    # else:
-    #     return words[random.randint(0, len(words) - 1)]
 
 def ansi_decorator(code):
     def decorator(func):
@@ -274,10 +258,12 @@ def displaySelectLevel():
         print('Invalid input. Please enter a valid level key.')
         displaySelectLevel()
     
-def displayHallOfFame(backend_db):
+def displayHallOfFame(backend_db, hangman_game):
     backend_db.get_records()
     print("Press any key to return to Main Menu...")
     input()
+    hangman_game.menu()
+    
     
 
 def displayMenu(hangman_game):
@@ -333,7 +319,7 @@ while True:
             hangman_game.gameIsDone = False
             hangman_game.life = 8
             hangman_game.secretWord = hangman_game.getRandomWord(words)
-            hangman_game.menu()
+            displayHallOfFame(backend_db, hangman_game)
         else:
             backend_db.conn.close()
             break
