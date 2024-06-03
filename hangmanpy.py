@@ -118,17 +118,20 @@ class HangmanGame:
         header = [[ansi_decorator('32')(lambda: """ABOUT THE GAME""")()]]
         data = [
             ["""Easy""", 
-            """The user will be given the chance to select the list from which the random word will \n
+            """•\n
+            The user will be given the chance to select the list from which the random word will \n
             be selected (Animal, Shape, Place). This will make it easier to guess the secret word. \n
-            Also, the number of trials will be increased from 6 to 8."""],
+            Also, the number of trials will be increased from 6 to 8.\n•"""],
             ["""Moderate""", 
-            """Similar to Easy, the user will be given the chance to select the set \n
+            """•\n
+            Similar to Easy, the user will be given the chance to select the set \n
             from which the random word will be selected (Animal, Shape, Place), but the number of \n
-            trials will be reduced to 6. The last two graphics will not be used or displayed."""],
+            trials will be reduced to 6. The last two graphics will not be used or displayed.\n•"""],
             ["""Hard""", 
-            """The code will randomly select a set of words. From this set, the code will \n
+            """•\n
+            The code will randomly select a set of words. From this set, the code will \n
             randomly select a word. The user will have no clue about the secret word. Also, the number \n
-            of trials will remain at 6."""]
+            of trials will remain at 6.\n•"""]
         ]
         header_table = tabulate(header, tablefmt="double_outline", stralign="center", numalign="center")
         table = tabulate(data, headers=['Level', 'Description'], tablefmt='fancy_grid')
