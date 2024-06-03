@@ -253,7 +253,7 @@ def displaySelectLevel():
     print('Enter the key (1, 2, 3, 4, or 5) based on above Menu:')
     input_key = input()
     if input_key in ['1', '2', '3']:
-        return input_key
+        return int(input_key) - 1
     else:
         print('Invalid input. Please enter a valid level key.')
         displaySelectLevel()
