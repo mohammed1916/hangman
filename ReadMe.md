@@ -18,3 +18,7 @@
 
 ## About Menu
 <img width="846" alt="Screenshot 2024-06-03 at 7 32 31 AM" src="https://github.com/mohammed1916/hangman/assets/63586305/fd1b993d-5cde-4749-bdfa-e6cec8fd5560">
+
+## Update latest and highest in Hall of Fame
+<img width="394" alt="Screenshot 2024-06-03 at 8 27 38 AM" src="https://github.com/mohammed1916/hangman/assets/63586305/840a3647-2c23-4821-9782-78b1781c414e">
+<img width="443" alt="Screenshot 2024-06-03 at 8 28 07 AM" src="https://github.com/mohammed1916/hangman/assets/63586305/84c99878-ce8e-429f-aeb2-6a518f1ae63a">

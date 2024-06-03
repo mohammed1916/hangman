@@ -1,41 +1,13 @@
 import random
 from tabulate import tabulate
-import sqlite3
+from global_data import *
+from backend_handler import *
+from helpers import *
+
 
 print('H A N G M A N')
 
-class backend:
-    def __init__(self):
-        self.conn = sqlite3.connect('hangman_records.db')
-        self.c = self.conn.cursor()
-        self.c.execute('''CREATE TABLE IF NOT EXISTS records (level text, player_name text, remaining_lives integer)''')
-    
-# conn = sqlite3.connect('hangman_records.db')
-# c = conn.cursor()
-# print(c)
 
-
-    def update_records(self, player_name, level, remaining_lives):
-        # Check if the player already has a record for the level
-        self.c.execute("SELECT remaining_lives FROM records WHERE level=? AND player_name=? ", (player_name, level))
-        result = self.c.fetchone()
-
-        if result is None:
-            # Insert a new record for the player and level
-            self.c.execute("INSERT INTO records VALUES (?, ?, ?)", (level, player_name, remaining_lives))
-        else:
-            # Update the existing record if the new remaining lives is higher
-            if remaining_lives > result[0]:
-                self.c.execute("UPDATE records SET remaining_lives=? WHERE player_name=? AND level=?", (remaining_lives, player_name, level))
-
-        # Commit the changes to the database
-        self.conn.commit()
-
-    def get_records(self):
-        self.c.execute("SELECT * FROM records")
-        records = self.c.fetchall()
-        print(tabulate(records, headers=["Level", "Player Name", "Remaining Lives"], tablefmt="fancy_grid"))
-        return records
 
 class HangmanGame:
     def __init__(self, backend_db):
@@ -140,19 +112,7 @@ class HangmanGame:
             self.displayAbout()
             self.menu()
 
-    # def play(self):
-    #     while True:
-    #         self.playGame()
-    #         if self.gameIsDone:
-    #             if self.playAgain():
-    #                 self.missedLetters = ''
-    #                 self.correctLetters = ''
-    #                 self.gameIsDone = False
-    #                 self.life = 8
-    #                 self.secretWord = self.getRandomWord(words)
-    #                 self.menu()
-    #             else:
-    #                 break
+
 
     def displayAbout(self):
         header = [[ansi_decorator('32')(lambda: """ABOUT THE GAME""")()]]
@@ -179,133 +139,12 @@ class HangmanGame:
         input()
 
 
-HANGMAN_PICS = ['''
-  +---+
-      |
-      |
-      |
-     ===''', '''
-  +---+
-  O   |
-      |
-      |
-     ===''', '''
-  +---+
-  O   |
-  |   |
-      |
-     ===''', '''
-  +---+
-  O   |
- /|   |
-      |
-     ===''', '''
-  +---+
-  O   |
- /|\\  |
-      |
-     ===''', '''
-  +---+
-  O   |
- /|\\  |
- /    |
-     ===''', '''
-  +---+
-  O   |
- /|\\  |
- / \\  |
-     ===''', '''
-  +---+
- [O   |
- /|\\  |
- / \\  |
-     ===''', '''
-  +---+
- [O]  |
- /|\\  |
- / \\  |
-     ===''']        
-                
-                
-                
-animal = 'ant baboon badger bat bear beaver camel cat clam cobra panda zebra sheep'.split()
-Shapes = 'square triangle rectangle circle ellipse rhombus trapezoid'.split()
-Place = 'cairo london paris baghdad istanbul riyadh'.split()
-
-words = [animal, Shapes, Place]
-levels = ['Easy', 'Moderate', 'Hard']
 
 
 
 
-def ansi_decorator(code):
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            return f"\033[{code}m{func(*args, **kwargs)}\033[0m"
-        return wrapper
-    return decorator
 
-def displaySelectLevel():
-    header = [[ansi_decorator('32')(lambda: "    SELECT FROM THE FOLLOWING SETS OF SECRET WORDS     ")()]]    
-    data = [
-        [ansi_decorator('33')(lambda: "1. Animals")(), ansi_decorator('44')(lambda: " 1 ")()],
-        [ansi_decorator('33')(lambda: "2. Shapes")(), ansi_decorator('44')(lambda: " 2 ")()],
-        [ansi_decorator('33')(lambda: "3. Places")(), ansi_decorator('44')(lambda: " 3 ")()],
-    ]
-    header_table = tabulate(header, tablefmt="double_outline", stralign="center", numalign="center")
-    data_table = tabulate(data, headers=["LEVELS", "KEY"], tablefmt="fancy_grid", stralign="center", numalign="center")
-    print(header_table)
-    print(data_table)
-    
-    print('Enter the key (1, 2, 3, 4, or 5) based on above Menu:')
-    input_key = input()
-    if input_key in ['1', '2', '3']:
-        return int(input_key) - 1
-    else:
-        print('Invalid input. Please enter a valid level key.')
-        displaySelectLevel()
-    
-def displayHallOfFame(backend_db, hangman_game):
-    backend_db.get_records()
-    print("Press any key to return to Main Menu...")
-    input()
-    hangman_game.menu()
-    
-    
 
-def displayMenu(hangman_game):
-    print("Please Enter your name:")
-    player_name = input()
-    hangman_game.player_name = player_name
-    header = [[ansi_decorator('32')(lambda: "    PLAY THE GAME     ")()]]
-
-    data = [
-        [ansi_decorator('33')(lambda: " Easy level ")(), ansi_decorator('44')(lambda: " 1 ")()],
-        [ansi_decorator('33')(lambda: " Moderate level ")(), ansi_decorator('44')(lambda: " 2 ")()],
-        [ansi_decorator('33')(lambda: " Hard level ")(), ansi_decorator('44')(lambda: " 3 ")()],
-    ]
-
-    footer = [
-        [ansi_decorator('33')(lambda: " Hall of fame ")(), ansi_decorator('44')(lambda: " 4 ")()],
-        [ansi_decorator('33')(lambda: " About the game ")(), ansi_decorator('44')(lambda: " 5 ")()],
-    ]
-
-    header_table = tabulate(header, tablefmt="double_outline", stralign="center", numalign="center")
-    data_table = tabulate(data, headers=["LEVELS", "KEY"], tablefmt="mixed_outline", stralign="center", numalign="center")
-    footer_table = tabulate(footer, headers=["INFO", "KEY"], tablefmt="fancy_grid", stralign="center", numalign="center")
-
-    print(header_table)
-    print(data_table)
-    print(footer_table)
-
-def getMenuInput():
-    while True:
-        print('Enter the key (1, 2, 3, 4, or 5) based on above Menu:')
-        input_key = input()
-        if input_key in ['1', '2', '3', '4', '5']:
-            return input_key
-        else:
-            print('Invalid input. Please enter a valid level key.')
 
 
 
