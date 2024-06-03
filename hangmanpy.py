@@ -229,8 +229,8 @@ HANGMAN_PICS = ['''
                 
                 
 animal = 'ant baboon badger bat bear beaver camel cat clam cobra panda zebra sheep'.split()
-Shapes = 'square triangle rectangle circle ellipse rhombus trapezoid Place'.split()
-Place = 'Cairo London Paris Baghdad Istanbul Riyadh'.split()
+Shapes = 'square triangle rectangle circle ellipse rhombus trapezoid'.split()
+Place = 'cairo london paris baghdad istanbul riyadh'.split()
 
 words = [animal, Shapes, Place]
 levels = ['Easy', 'Moderate', 'Hard']
@@ -319,7 +319,7 @@ while True:
     hangman_game.playGame()
     # Ask the player if they want to play again (but only if the game is done).
     if hangman_game.gameIsDone:
-        backend_db.update_records(hangman_game.player_name, levels[int(hangman_game.level)-1] , hangman_game.life)
+        backend_db.update_records(hangman_game.player_name, levels[int(hangman_game.level)-1] , str(hangman_game.life - len(hangman_game.missedLetters)))
         if hangman_game.playAgain():
             hangman_game.missedLetters = ''
             hangman_game.correctLetters = ''
