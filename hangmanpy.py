@@ -72,15 +72,21 @@ class HangmanGame:
 
     def getGuess(self):
         while True:
+            data = [[ansi_decorator('38;5;220')(lambda: str(self.life - len(self.missedLetters)) )()]]
+            print(tabulate(data,headers=['Remaining lives:'], tablefmt="fancy_grid", stralign="center", numalign="center"))
             print('Guess a letter.')
             guess = input()
             guess = guess.lower()
             if len(guess) != 1:
-                print('Please enter a single letter.')
+                data = [[ansi_decorator('38;5;196')(lambda: "ERROR" )()]]
+                print(tabulate(data,headers=['Please enter a single letter.'], tablefmt="fancy_grid", stralign="center", numalign="center"))
+                print()
             elif guess in self.correctLetters or guess in self.missedLetters:
-                print('You have already guessed that letter. Choose again.')
+                data = [[ansi_decorator('38;5;196')(lambda: "ERROR" )()]]
+                print(tabulate(data,headers=['You have already guessed that letter. Choose again.'], tablefmt="fancy_grid", stralign="center", numalign="center"))
             elif guess not in 'abcdefghijklmnopqrstuvwxyz':
-                print('Please enter a LETTER.')
+                data = [[ansi_decorator('38;5;196')(lambda: "ERROR" )()]]
+                print(tabulate(data,headers=['Please enter a LETTER.'], tablefmt="fancy_grid", stralign="center", numalign="center"))
             else:
                 return guess
 
@@ -89,7 +95,7 @@ class HangmanGame:
         if level == "1": # easy
             life = 8
             return words[displaySelectLevel()]
-        elif level == "2": # medium
+        elif level == "2": # moderate
             life = 6
             return words[displaySelectLevel()]
         elif level == "3": # hard
@@ -227,6 +233,7 @@ Shapes = 'square triangle rectangle circle ellipse rhombus trapezoid Place'.spli
 Place = 'Cairo London Paris Baghdad Istanbul Riyadh'.split()
 
 words = [animal, Shapes, Place]
+levels = ['Easy', 'Moderate', 'Hard']
 
 
 
@@ -312,7 +319,7 @@ while True:
     hangman_game.playGame()
     # Ask the player if they want to play again (but only if the game is done).
     if hangman_game.gameIsDone:
-        backend_db.update_records(hangman_game.player_name, int(hangman_game.level) , hangman_game.life)
+        backend_db.update_records(hangman_game.player_name, levels[int(hangman_game.level)-1] , hangman_game.life)
         if hangman_game.playAgain():
             hangman_game.missedLetters = ''
             hangman_game.correctLetters = ''
